@@ -1,0 +1,4 @@
+bibtexparser
+future
+requests
+lxml

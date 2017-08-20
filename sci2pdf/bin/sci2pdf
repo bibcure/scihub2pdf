@@ -1,0 +1,48 @@
+#!/usr/bib/env python
+from __future__ import print_function
+import sys
+import bibtexparser
+import argparse
+import textwrap
+from multiprocessing import Pool
+from sci2pdf.libgen import download_pdf_from_bib
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="sci2pdf",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent('''\
+        Bibcure helps in boring tasks by keeping
+        your bibfile up to date and normalized.
+
+        $ bibcure -i input.bib -o output.bib
+       -----------------------------------------------------
+            @author: Bruno Messias
+            @email: messias.physics@gmail.com
+            @telegram: @brunomessias
+            @github: https://github.com/bibcure/bibcure
+        ''')
+    )
+    parser.add_argument(
+        "--input", "-i",
+        required=True,
+        type=argparse.FileType("r"),
+        help="bibtex input file"
+    )
+    args = parser.parse_args()
+    bibtex = bibtexparser.loads(args.input.read())
+    bibs = bibtex.entries
+    if len(bibs) == 0:
+        print("Input File is empty or corrupted.")
+        sys.exit(1)
+
+    # pool = Pool()
+    # bibs = pool.map(download_pdf_from_bib, bibs)
+    # pool.close()
+    # pool.join()
+
+    bibs = list(map(download_pdf_from_bib, bibs))
+
+if __name__ == "__main__":
+    main()
