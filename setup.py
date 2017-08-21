@@ -6,7 +6,7 @@ readme.close()
 
 setup(
     name="sci2pdf",
-    version="0.0.1",
+    version="0.0.2",
     packages = find_packages(exclude=["build",]),
     scripts=["sci2pdf/bin/sci2pdf"],
     long_description = README_TEXT,
@@ -17,12 +17,10 @@ setup(
                         "lxml"],
     include_package_data=True,
     license="GPLv3",
-    description="""Downloads pdfs via a DOI number,
-    article title or a bibtex file,
-    using the database of libgen(sci-hub)""",
+    description="Downloads pdfs via a DOI number, article title or a bibtex file, sci-hub",
     author="Bruno Messias",
     author_email="messias.physics@gmail.com",
-    download_url="https://github.com/bibcure/sci2pdf/archive/0.0.1.tar.gz",
+    download_url="https://github.com/bibcure/sci2pdf/archive/0.0.2.tar.gz",
     keywords=["bibtex", "sci-hub", "libgen", "doi",  "science","scientific-journals"],
 
     classifiers=[
