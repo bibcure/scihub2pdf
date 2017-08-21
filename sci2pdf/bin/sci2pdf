@@ -13,8 +13,21 @@ def main():
         prog="sci2pdf",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
+        Downloads pdfs via a DOI number, article title
+        or a bibtex file, using the database of libgen(sci-hub).
 
-        $ sci2bib -i input.bib
+        Given a bibtex file
+
+        $ sci2pdf -i input.bib
+
+        Given a DOI number...
+
+        $ sci2pdf 10.1038/s41524-017-0032-0
+
+        Given a title...
+
+        $ sci2bib --title An useful paper
+
        -----------------------------------------------------
             @author: Bruno Messias
             @email: messias.physics@gmail.com
@@ -24,37 +37,41 @@ def main():
     )
     parser.add_argument(
         "--input", "-i",
-        required=True,
         type=argparse.FileType("r"),
         help="bibtex input file"
     )
-    parser.add_argument("--title", "-t",
-                        dest="title",
-                        action="store_true",
-                        help="download from title"
+    parser.add_argument(
+        "--title", "-t",
+        dest="title",
+        action="store_true",
+        help="download from title"
                         )
-
+    parser.add_argument(
+        "--location", "-l",
+        help="folder, ex: -l 'folder/'"
+    )
 
     parser.set_defaults(title=False)
+    parser.set_defaults(location="")
 
     args = parser.parse_known_args()
     title_search = args[0].title
     inline_search = len(args[1]) > 0
+    location = args[0].location
     if inline_search:
         value = " ".join(args[1])
         if title_search:
-            download_from_title(value)
+            download_from_title(value, location)
         else:
-            download_from_doi(value)
+            download_from_doi(value, location)
     else:
-        bibtex = bibtexparser.loads(args.input.read())
+        bibtex = bibtexparser.loads(args[0].input.read())
         bibs = bibtex.entries
         if len(bibs) == 0:
             print("Input File is empty or corrupted.")
             sys.exit(1)
 
-        download_pdf_from_bibs(bibs)
-
+        download_pdf_from_bibs(bibs, location)
 
 
 if __name__ == "__main__":

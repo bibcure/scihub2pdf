@@ -4,7 +4,6 @@ from lxml import html
 from multiprocessing.dummy import Pool as ThreadPool
 from titletobib.crossref import get_bib_from_title
 import bibtexparser
-import pdb
 
 headers = {
     "Connection": "close",
@@ -51,7 +50,7 @@ def download_pdf(bib):
                   r.status_code)
 
 
-def download_pdf_from_bibs(bibs, location="sci2pdf/",
+def download_pdf_from_bibs(bibs, location="",
                            thread_size_links=1, thread_size_download=1):
     def put_pdf_location(bib):
         pdf_name = bib["ID"] if "ID" in bib else bib["doi"].replace("/", "_")
