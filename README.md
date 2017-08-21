@@ -27,4 +27,9 @@ Given a title...
 ```
 $ sci2bib --title An useful paper
 ```
+Location folder as argument
+```
+$ sci2pdf -i input.bib -l somefoler/
+```
+
 
