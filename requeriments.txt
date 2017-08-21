@@ -2,4 +2,4 @@ bibtexparser
 future
 requests
 lxml
-titletobib
+title2bib

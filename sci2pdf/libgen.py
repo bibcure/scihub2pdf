@@ -2,7 +2,7 @@ from __future__ import print_function
 import requests
 from lxml import html
 from multiprocessing.dummy import Pool as ThreadPool
-from titletobib.crossref import get_bib_from_title
+from title2bib.crossref import get_bib_from_title
 import bibtexparser
 
 headers = {
