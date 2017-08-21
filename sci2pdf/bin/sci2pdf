@@ -4,9 +4,8 @@ import sys
 import bibtexparser
 import argparse
 import textwrap
-from multiprocessing import Pool
-from sci2pdf.libgen import download_pdf_from_bib
-from sci2pdf.libgen import download_pdf_from_bibs
+from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
+from sci2pdf.libgen import download_from_title
 
 
 def main():
@@ -14,15 +13,13 @@ def main():
         prog="sci2pdf",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
-        Bibcure helps in boring tasks by keeping
-        your bibfile up to date and normalized.
 
-        $ bibcure -i input.bib -o output.bib
+        $ sci2bib -i input.bib
        -----------------------------------------------------
             @author: Bruno Messias
             @email: messias.physics@gmail.com
             @telegram: @brunomessias
-            @github: https://github.com/bibcure/bibcure
+            @github: https://github.com/bibcure/sci2bib
         ''')
     )
     parser.add_argument(
@@ -31,19 +28,34 @@ def main():
         type=argparse.FileType("r"),
         help="bibtex input file"
     )
-    args = parser.parse_args()
-    bibtex = bibtexparser.loads(args.input.read())
-    bibs = bibtex.entries
-    if len(bibs) == 0:
-        print("Input File is empty or corrupted.")
-        sys.exit(1)
+    parser.add_argument("--title", "-t",
+                        dest="title",
+                        action="store_true",
+                        help="download from title"
+                        )
 
-    # pool = Pool()
-    # bibs = pool.map(download_pdf_from_bib, bibs)
-    # pool.close()
-    # pool.join()
-    download_pdf_from_bibs(bibs)
-    # bibs = list(map(download_pdf_from_bib, bibs))
+
+    parser.set_defaults(title=False)
+
+    args = parser.parse_known_args()
+    title_search = args[0].title
+    inline_search = len(args[1]) > 0
+    if inline_search:
+        value = " ".join(args[1])
+        if title_search:
+            download_from_title(value)
+        else:
+            download_from_doi(value)
+    else:
+        bibtex = bibtexparser.loads(args.input.read())
+        bibs = bibtex.entries
+        if len(bibs) == 0:
+            print("Input File is empty or corrupted.")
+            sys.exit(1)
+
+        download_pdf_from_bibs(bibs)
+
+
 
 if __name__ == "__main__":
     main()
