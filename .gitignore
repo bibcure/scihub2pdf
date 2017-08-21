@@ -9,9 +9,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-develop-eggs/
+sci2bib-eggs/
 eggs/
-bibcure.egg-info/
+sci2bib.egg-info/
 dist/
 build/
 downloads/

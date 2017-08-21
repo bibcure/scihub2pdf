@@ -51,7 +51,7 @@ def download_pdf(bib):
 
 
 def download_pdf_from_bibs(bibs, location="",
-                           thread_size_links=1, thread_size_download=1):
+                           thread_size=1):
     def put_pdf_location(bib):
         pdf_name = bib["ID"] if "ID" in bib else bib["doi"].replace("/", "_")
         pdf_name += ".pdf"
@@ -63,22 +63,27 @@ def download_pdf_from_bibs(bibs, location="",
     bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
 
     # bibs_libgen = list(map(get_libgen_url, bibs_with_doi))
-
-    pool = ThreadPool(thread_size_links)
-    bibs_libgen = pool.map(get_libgen_url, bibs_with_doi)
-    pool.close()
-    pool.join()
+    if thread_size == 1:
+        bibs_libgen = list(map(get_libgen_url, bibs_with_doi))
+    else:
+        pool = ThreadPool(thread_size)
+        bibs_libgen = pool.map(get_libgen_url, bibs_with_doi)
+        pool.close()
+        pool.join()
 
     bibs_libgen = list(filter(
         lambda bib: bib["libgen"] is not None, bibs_libgen
     ))
     bibs_libgen = list(map(put_pdf_location, bibs_libgen))
 
-    pool = ThreadPool(thread_size_download)
-    pool.map(download_pdf, bibs_libgen)
-
-    pool.close()
-    pool.join()
+    if thread_size == 1:
+        list(map(download_pdf, bibs_libgen))
+    else:
+        pool = ThreadPool(thread_size)
+        pool.map(download_pdf, bibs_libgen)
+        bibs_libgen = pool.map(get_libgen_url, bibs_with_doi)
+        pool.close()
+        pool.join()
 
 
 def download_from_doi(doi, location=""):
