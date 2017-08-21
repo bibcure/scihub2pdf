@@ -7,7 +7,10 @@ Description
 sci2pdf is a module of `bibcure <https://github.com/bibcure/bibcure>`__
 
 Downloads pdfs via a DOI number, article title or a bibtex file, using
-the database of libgen(sci-hub). ## Install
+the database of libgen(sci-hub).
+
+Install
+-------
 
 ::
 
