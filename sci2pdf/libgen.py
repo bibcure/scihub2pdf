@@ -2,7 +2,9 @@ from __future__ import print_function
 import requests
 from lxml import html
 from multiprocessing.dummy import Pool as ThreadPool
-
+from titletobib.crossref import get_bib_from_title
+import bibtexparser
+import pdb
 
 headers = {
     "Connection": "close",
@@ -83,16 +85,26 @@ def download_pdf_from_bibs(bibs, location="sci2pdf/",
 def download_from_doi(doi, location=""):
     bib = {"doi": doi}
     bib_libgen = get_libgen_url(bib)
-    pdf_name = "sci2pdf-{}.pdf".format(doi.replace("/", "_"))
-    pdf_file = location+pdf_name
-    bib_libgen["pdf_file"] = pdf_file
-    download_pdf(bib)
+    if bib_libgen["libgen"] is not None:
+        pdf_name = "sci2pdf-{}.pdf".format(doi.replace("/", "_"))
+        pdf_file = location+pdf_name
+        bib_libgen["pdf_file"] = pdf_file
+        download_pdf(bib)
 
 
-def download_from_title(doi, location=""):
-    bib = {"doi": doi}
-    bib_libgen = get_libgen_url(bib)
-    pdf_name = "sci2pdf-{}.pdf".format(doi.replace("/", "_"))
-    pdf_file = location+pdf_name
-    bib_libgen["pdf_file"] = pdf_file
-    download_pdf(bib)
+def download_from_title(title, location=""):
+    found, bib_string = get_bib_from_title(title)
+
+    if found:
+        bib = bibtexparser.loads(bib_string).entries[0]
+        if "doi" in bib:
+            bib_libgen = get_libgen_url(bib)
+            if bib_libgen["libgen"] is not None:
+                pdf_name = "sci2pdf-{}.pdf".format(
+                    bib["doi"].replace("/", "_")
+                )
+                pdf_file = location+pdf_name
+                bib_libgen["pdf_file"] = pdf_file
+                download_pdf(bib_libgen)
+        else:
+            print("Absent DOI")
