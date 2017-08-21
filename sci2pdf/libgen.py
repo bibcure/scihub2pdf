@@ -2,6 +2,11 @@ from __future__ import print_function
 import requests
 from lxml import html
 
+from gevent import monkey, pool
+import gevent
+monkey.patch_all()
+
+p = pool.Pool(3)
 
 def get_libgen_url(doi):
     url = "http://libgen.io/scimag/ads.php"
@@ -20,18 +25,26 @@ def download_pdf(url, pdf_file):
     pdf_file.close()
     return request_pdf
 
+def download_pdf_from_bibs(bibs, location="sci2pdf/"):
+    bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
+    urls_libgen = [get_libgen_url(bib["doi"]) for bib in bibs_with_doi]
+    r_pdfs = [
+        p.spawn(requests.get, url)
+        for url in urls_libgen
+    ]
+    gevent.joinall(r_pdfs)
+    for i, r in enumerate(r_pdfs):
 
-def download_pdf_from_bib(bib, location="sci2pdf/"):
-    if "doi" in bib:
-        download_link = get_libgen_url(bib["doi"])
-        pdf_name = bib["ID"] if "ID" in bib else bib["doi"]
+        bib = bibs_with_doi[i]
+        pdf_name =  bib["ID"] if "ID" in bib else bib["doi"]
         pdf_name += ".pdf"
         pdf_file = location+pdf_name
-        print("Downloading "+bib["title"])
-        download_pdf(download_link, pdf_file)
+        response = r.get()
 
-    return bib
-
+        print(response.status_code)
+        pdf_file = open(pdf_file, "wb")
+        pdf_file.write(response.content)
+        pdf_file.close()
 
 def download_from_doi(doi, location=""):
 

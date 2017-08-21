@@ -6,6 +6,7 @@ import argparse
 import textwrap
 from multiprocessing import Pool
 from sci2pdf.libgen import download_pdf_from_bib
+from sci2pdf.libgen import download_pdf_from_bibs
 
 
 def main():
@@ -41,8 +42,8 @@ def main():
     # bibs = pool.map(download_pdf_from_bib, bibs)
     # pool.close()
     # pool.join()
-
-    bibs = list(map(download_pdf_from_bib, bibs))
+    download_pdf_from_bibs(bibs)
+    # bibs = list(map(download_pdf_from_bib, bibs))
 
 if __name__ == "__main__":
     main()
