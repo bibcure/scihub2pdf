@@ -5,18 +5,22 @@ from title2bib.crossref import get_bib_from_title
 import bibtexparser
 from builtins import input
 from PIL import Image
-from StringIO import StringIO
-
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 headers = {
     # "Connection": "close",
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
 }
-
-
 url_captcha_scihub = "http://moscow.sci-hub.cc"
 url_libgen = "http://libgen.io/scimag/ads.php"
 url_scihub = "http://sci-hub.cc/"
+xpath_libgen_a = "/html/body/table/tr/td[3]/a"
+xpath_scihub_captcha = "//*[@id='captcha']"
+xpath_scihub_iframe = "//iframe/@src"
+xpath_scihub_pdf = "//*[@id='pdf']"
 
 
 def norm_url(url):
@@ -26,29 +30,32 @@ def norm_url(url):
     return url
 
 
-def get_libgen_url(bib, s):
-    download_link = None
-    doi = bib["doi"]
-    print(doi)
-    params = {"doi": doi, "downloadname": ""}
+def download_from_libgen(bib, s):
+    params = {"doi": bib["doi"], "downloadname": ""}
 
-    r = s.get(url_libgen, params=params, headers=headers, allow_redirects=True)
-    if r.status_code == 200:
-        html_tree = html.fromstring(r.content)
-        html_a = html_tree.xpath("/html/body/table/tr/td[3]/a")
-        if len(html_a) > 0:
-            download_link = norm_url(html_a[0].attrib["href"])
-        else:
-            print("Link not found")
-    else:
-        print(r.status_code)
+    r = s.get(url_libgen, params=params, headers=headers)
+    print("libgen link", r.url)
+    if r.status_code != 200:
+        print("Fail libgen url", r.status_code)
+        print("Maybe libgen is down. Try to use sci-hub instead.")
+        return
 
+    html_tree = html.fromstring(r.content)
+    html_a = html_tree.xpath(xpath_libgen_a)
+    if len(html_a) == 0:
+        print("Copy and paste the below link into your browser")
+        print("\n\t", r.url, "\n")
+        return
+
+    download_link = norm_url(html_a[0].attrib["href"])
     bib["scihub"] = download_link
-    return bib
+    download_pdf(bib, s)
+
+    return
 
 
 def check_captcha(iframe_url, url, html_tree, s):
-    html_captcha = html_tree.xpath("//*[@id='captcha']")
+    html_captcha = html_tree.xpath(xpath_scihub_captcha)
     if len(html_captcha) > 0:
         captcha_url = url_captcha_scihub+html_captcha[0].attrib["src"]
         r = s.get(captcha_url)
@@ -75,10 +82,12 @@ def download_from_scihub(bib, s):
         return
 
     html_tree = html.fromstring(r.content)
-    iframe_url = html_tree.xpath("//iframe/@src")
+    iframe_url = html_tree.xpath(xpath_scihub_iframe)
 
     if len(iframe_url) == 0:
-        print("Iframe not found")
+        print("Iframe not found.")
+        print("Copy and paste the below link into your browser")
+        print("\n\t", url, "\n")
         return
 
     iframe_url = iframe_url[0]
@@ -88,10 +97,11 @@ def download_from_scihub(bib, s):
     if check_captcha(iframe_url, url,  html_tree_ri, s):
         return download_from_scihub(bib, s)
 
-    html_pdf = html_tree.xpath("//*[@id='pdf']")
+    html_pdf = html_tree.xpath(xpath_scihub_pdf)
 
     if len(html_pdf) == 0:
         print("pdf file not found")
+        print("\n\t", url)
         return
 
     download_link = norm_url(html_pdf[0].attrib["src"])
@@ -115,7 +125,7 @@ def download_pdf(bib, s):
 
 
 def download_pdf_from_bibs(bibs, location="",
-                           thread_size=1):
+                           use_libgen=False):
     def put_pdf_location(bib):
         pdf_name = bib["ID"] if "ID" in bib else bib["doi"].replace("/", "_")
         pdf_name += ".pdf"
@@ -129,20 +139,28 @@ def download_pdf_from_bibs(bibs, location="",
     bibs = list(map(put_pdf_location, bibs_with_doi))
 
     with requests.Session() as s:
-        list(map(lambda bib: download_from_scihub(bib, s), bibs))
+        if use_libgen:
+            #libgen has no  captcha, try to use multiprocessing?
+            list(map(lambda bib: download_from_libgen(bib, s), bibs))
+        else:
+            for bib in bibs:
+                download_from_scihub(bib, s)
 
 
-def download_from_doi(doi, location=""):
+def download_from_doi(doi, location="", use_libgen=False):
     bib = {"doi": doi}
     pdf_name = "sci2pdf-{}.pdf".format(doi.replace("/", "_"))
     pdf_file = location+pdf_name
     bib["pdf_file"] = pdf_file
 
     with requests.Session() as s:
-        download_from_scihub(bib, s)
+        if use_libgen:
+            download_from_libgen(bib, s)
+        else:
+            download_from_scihub(bib, s)
 
 
-def download_from_title(title, location=""):
+def download_from_title(title, location="", use_libgen=False):
     found, bib_string = get_bib_from_title(title)
 
     if found:
@@ -154,6 +172,9 @@ def download_from_title(title, location=""):
             pdf_file = location+pdf_name
             bib["pdf_file"] = pdf_file
             with requests.Session() as s:
-                download_from_scihub(bib, s)
+                if use_libgen:
+                    download_from_libgen(bib, s)
+                else:
+                    download_from_scihub(bib, s)
         else:
             print("Absent DOI")
