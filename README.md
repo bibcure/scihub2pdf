@@ -1,4 +1,4 @@
-# SciHub to PDF
+# SciHub to PDF(Beta)
 
 ## Description
 
