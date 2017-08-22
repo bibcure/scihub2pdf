@@ -2,7 +2,7 @@
 
 ## Description
 
-sci2pdf is a module of [bibcure](https://github.com/bibcure/bibcure)
+scihub2pdf is a module of [bibcure](https://github.com/bibcure/bibcure)
 
 Downloads pdfs via a DOI number, article title or a bibtex file, using the
 database of libgen(sci-hub).
@@ -10,19 +10,19 @@ database of libgen(sci-hub).
 ## Install
 
 ```
-$ sudo pip install sci2pdf
+$ sudo pip install scihub2pdf
 ```
 
 ## Features and how to use
 
 Given a bibtex file
 ```
-$ sci2pdf -i input.bib 
+$ scihub2pdf -i input.bib 
 ```
 
 Given a DOI number...
 ```
-$ sci2pdf 10.1038/s41524-017-0032-0
+$ scihub2pdf 10.1038/s41524-017-0032-0
 ```
 
 Given a title...
@@ -31,7 +31,7 @@ $ sci2bib --title An useful paper
 ```
 Location folder as argument
 ```
-$ sci2pdf -i input.bib -l somefoler/
+$ scihub2pdf -i input.bib -l somefoler/
 ```
 
 

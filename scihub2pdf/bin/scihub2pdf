@@ -6,14 +6,14 @@ import argparse
 import textwrap
 # from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
 # from sci2pdf.libgen import download_from_title
-from sci2pdf.scihub import download_pdf_from_bibs, download_from_doi
-from sci2pdf.scihub import download_from_title
+from scihub2pdf.scihub import download_pdf_from_bibs, download_from_doi
+from scihub2pdf.scihub import download_from_title
 
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="sci2pdf",
+        prog="scihub2pdf",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
         SciHub to PDF
@@ -23,15 +23,15 @@ def main():
 
         Given a bibtex file
 
-        $ sci2pdf -i input.bib
+        $ scihub2pdf -i input.bib
 
         Given a DOI number...
 
-        $ sci2pdf 10.1038/s41524-017-0032-0
+        $ scihub2pdf 10.1038/s41524-017-0032-0
 
         Given a title...
 
-        $ sci2pdf --title An useful paper
+        $ scihub2pdf --title An useful paper
 
        -----------------------------------------------------
             @author: Bruno Messias
