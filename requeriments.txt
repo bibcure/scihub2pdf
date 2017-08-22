@@ -3,3 +3,4 @@ future
 requests
 lxml
 title2bib
+Pillow

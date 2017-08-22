@@ -5,22 +5,40 @@ from title2bib.crossref import get_bib_from_title
 import bibtexparser
 from builtins import input
 from PIL import Image
+from . import __version__
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-
 headers = {
     # "Connection": "close",
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
 }
-url_captcha_scihub = "http://moscow.sci-hub.cc"
-url_libgen = "http://libgen.io/scimag/ads.php"
-url_scihub = "http://sci-hub.cc/"
-xpath_libgen_a = "/html/body/table/tr/td[3]/a"
-xpath_scihub_captcha = "//*[@id='captcha']"
-xpath_scihub_iframe = "//iframe/@src"
-xpath_scihub_pdf = "//*[@id='pdf']"
+print("\n\t Checking state of scihub...")
+url_state ="https://raw.githubusercontent.com/bibcure/scihub_state/master/state.txt"
+try:
+    r = requests.get(url_state)
+    state_scihub = [i.split(">>")[1] for i in r.iter_lines()]
+    url_captcha_scihub = state_scihub[0]
+    url_libgen = state_scihub[1]
+    url_scihub = state_scihub[2]
+    xpath_libgen_a = state_scihub[3]
+    xpath_scihub_captcha = state_scihub[4]
+    xpath_scihub_iframe = state_scihub[5]
+    xpath_scihub_pdf = state_scihub[6]
+    has_update = state_scihub[7] != __version__
+    if has_update:
+        print("\n\t\tWill be better if you upgrade scihub2pdf.")
+        print("\t\tFor that, just do:\n")
+        print("\t\t\t sudo pip install scihub2pdf --upgrade\n")
+except:
+    url_captcha_scihub = "http://moscow.sci-hub.cc"
+    url_libgen = "http://libgen.io/scimag/ads.php"
+    url_scihub = "http://sci-hub.cc/"
+    xpath_libgen_a = "/html/body/table/tr/td[3]/a"
+    xpath_scihub_captcha = "//*[@id='captcha']"
+    xpath_scihub_iframe = "//iframe/@src"
+    xpath_scihub_pdf = "//*[@id='pdf']"
 
 
 def norm_url(url):
