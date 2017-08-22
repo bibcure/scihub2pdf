@@ -1,7 +1,6 @@
 from __future__ import print_function
 import requests
 from lxml import html
-from multiprocessing.dummy import Pool as ThreadPool
 from title2bib.crossref import get_bib_from_title
 import bibtexparser
 from builtins import input
@@ -130,13 +129,7 @@ def download_pdf_from_bibs(bibs, location="",
     bibs = list(map(put_pdf_location, bibs_with_doi))
 
     with requests.Session() as s:
-        if thread_size == 1:
-            list(map(lambda bib: download_from_scihub(bib, s), bibs))
-        else:
-            pool = ThreadPool(thread_size)
-            pool.map(download_from_scihub, bibs)
-            pool.close()
-            pool.join()
+        list(map(lambda bib: download_from_scihub(bib, s), bibs))
 
 
 def download_from_doi(doi, location=""):
