@@ -4,8 +4,11 @@ import sys
 import bibtexparser
 import argparse
 import textwrap
-from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
-from sci2pdf.libgen import download_from_title
+# from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
+# from sci2pdf.libgen import download_from_title
+from sci2pdf.scihub import download_pdf_from_bibs, download_from_doi
+from sci2pdf.scihub import download_from_title
+
 
 
 def main():
