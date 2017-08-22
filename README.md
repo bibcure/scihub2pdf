@@ -5,7 +5,7 @@
 scihub2pdf is a module of [bibcure](https://github.com/bibcure/bibcure)
 
 Downloads pdfs via a DOI number, article title or a bibtex file, using the
-database of libgen(sci-hub).
+database of libgen or Sci-Hub.
 
 ## Install
 
@@ -34,4 +34,21 @@ Location folder as argument
 $ scihub2pdf -i input.bib -l somefoler/
 ```
 
+Use libgen instead sci-hub
 
+```
+$ scihub2pdf -i input.bib --uselibgen
+```
+
+## Sci-hub:
+
+- Stable
+- Annoying CAPTCHA
+- Fast
+
+
+## Libgen
+
+- Unstalbe
+- No CAPTCHA
+- Slow
