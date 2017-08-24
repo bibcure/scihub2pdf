@@ -110,7 +110,7 @@ def download_from_scihub(bib, s):
         print("\n\t", url, "\n")
         return
 
-    iframe_url = iframe_url[0]
+    iframe_url = norm_url(iframe_url[0])
     ri = s.get(iframe_url, headers=headers)
     html_tree_ri = html.fromstring(ri.content)
 
