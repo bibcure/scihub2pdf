@@ -13,6 +13,7 @@ setup(
     long_description = README_TEXT,
     install_requires = ["bibtexparser",
                         "title2bib",
+                        "arxivcheck",
                         "future",
                         "Pillow",
                         "requests",

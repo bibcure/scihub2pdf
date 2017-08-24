@@ -4,3 +4,4 @@ requests
 lxml
 title2bib
 Pillow
+arxivcheck
