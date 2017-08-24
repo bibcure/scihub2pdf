@@ -7,7 +7,7 @@ import textwrap
 # from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
 # from sci2pdf.libgen import download_from_title
 from scihub2pdf.scihub import download_pdf_from_bibs, download_from_doi
-from scihub2pdf.scihub import download_from_title
+from scihub2pdf.scihub import download_from_title, download_from_arxiv
 
 
 
@@ -32,6 +32,12 @@ def main():
         Given a title...
 
         $ scihub2pdf --title An useful paper
+
+        Arxiv...
+
+        $ scihub2pdf arxiv:0901.2686
+
+        $ scihub2pdf --title arxiv:Periodic table for topological insulators
 
        -----------------------------------------------------
             @author: Bruno Messias
@@ -79,7 +85,11 @@ def main():
 
     if inline_search:
         value = " ".join(args[1])
-        if title_search:
+        is_arxiv = value.startswith("arxiv:")
+        if is_arxiv:
+            field = "ti" if title_search else "id"
+            download_from_arxiv(value, field, location)
+        elif title_search:
             download_from_title(value, location, use_libgen)
         else:
             download_from_doi(value, location, use_libgen)
