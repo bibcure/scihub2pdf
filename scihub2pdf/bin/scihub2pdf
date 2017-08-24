@@ -8,7 +8,7 @@ import textwrap
 # from sci2pdf.libgen import download_from_title
 from scihub2pdf.scihub import download_pdf_from_bibs, download_from_doi
 from scihub2pdf.scihub import download_from_title, download_from_arxiv
-
+import re
 
 
 def main():
@@ -39,6 +39,42 @@ def main():
 
         $ scihub2pdf --title arxiv:Periodic table for topological insulators
 
+        ## Download from list of items
+
+        Given a text file like
+
+        ```
+        10.1038/s41524-017-0032-0
+        10.1063/1.3149495
+        .....
+        ```
+        download all pdf's
+        ```
+        $ scihub2pdf -i dois.txt --txt
+        ```
+        Given a text file like
+
+        ```
+        Some Title 1
+        Some Title 2
+        .....
+        ```
+        download all pdf's
+        ```
+        $ scihub2pdf -i titles.txt --txt --title
+        ```
+        Given a text file like
+
+        ```
+        arXiv:1708.06891
+        arXiv:1708.06071
+        arXiv:1708.05948
+        .....
+        ```
+        download all pdf's
+        ```
+        $ scihub2pdf -i arxiv_ids.txt --txt
+        ```
        -----------------------------------------------------
             @author: Bruno Messias
             @email: messias.physics@gmail.com
@@ -48,6 +84,7 @@ def main():
     )
     parser.add_argument(
         "--input", "-i",
+        dest="inputfile",
         type=argparse.FileType("r"),
         help="bibtex input file"
     )
@@ -67,13 +104,20 @@ def main():
         "--location", "-l",
         help="folder, ex: -l 'folder/'"
     )
+    parser.add_argument(
+        "--txt",
+        action="store_true",
+        help="Just create a file with DOI's or titles"
+    )
 
     parser.set_defaults(title=False)
     parser.set_defaults(uselibgen=False)
+    parser.set_defaults(txt=False)
     parser.set_defaults(location="")
 
     args = parser.parse_known_args()
     title_search = args[0].title
+    is_txt = args[0].txt
     use_libgen = args[0].uselibgen
     inline_search = len(args[1]) > 0
     location = args[0].location
@@ -85,7 +129,7 @@ def main():
 
     if inline_search:
         value = " ".join(args[1])
-        is_arxiv = value.startswith("arxiv:")
+        is_arxiv = bool(re.match("arxiv:", value, re.I))
         if is_arxiv:
             field = "ti" if title_search else "id"
             download_from_arxiv(value, field, location)
@@ -94,13 +138,27 @@ def main():
         else:
             download_from_doi(value, location, use_libgen)
     else:
-        bibtex = bibtexparser.loads(args[0].input.read())
-        bibs = bibtex.entries
-        if len(bibs) == 0:
-            print("Input File is empty or corrupted.")
-            sys.exit(1)
+        if is_txt:
+            file_values = args[0].inputfile.read()
+            for value in file_values.split("\n"):
+                is_arxiv = bool(re.match("arxiv:", value, re.I))
+                if value != "":
+                    if is_arxiv:
+                        field = "ti" if title_search else "id"
+                        download_from_arxiv(value, field, location)
+                    elif title_search:
+                        download_from_title(value, location, use_libgen)
+                    else:
+                        download_from_doi(value, location, use_libgen)
 
-        download_pdf_from_bibs(bibs, location, use_libgen)
+        else:
+            bibtex = bibtexparser.loads(args[0].inputfile.read())
+            bibs = bibtex.entries
+            if len(bibs) == 0:
+                print("Input File is empty or corrupted.")
+                sys.exit(1)
+
+            download_pdf_from_bibs(bibs, location, use_libgen)
 
 
 if __name__ == "__main__":
