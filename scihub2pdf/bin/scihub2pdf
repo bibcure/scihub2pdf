@@ -33,6 +33,12 @@ def main():
 
         $ scihub2pdf --title An useful paper
 
+        Arxiv...
+
+        $ scihub2pdf arxiv:0901.2686
+
+        $ scihub2pdf --title arxiv:Periodic table for topological insulators
+
        -----------------------------------------------------
             @author: Bruno Messias
             @email: messias.physics@gmail.com
