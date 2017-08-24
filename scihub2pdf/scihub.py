@@ -2,6 +2,7 @@ from __future__ import print_function
 import requests
 from lxml import html
 from title2bib.crossref import get_bib_from_title
+from arxivcheck.arxiv import get_arxiv_pdf_link
 import bibtexparser
 from builtins import input
 from PIL import Image
@@ -15,7 +16,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
 }
 print("\n\t Checking state of scihub...")
-url_state ="https://raw.githubusercontent.com/bibcure/scihub_state/master/state.txt"
+url_state = "https://raw.githubusercontent.com/bibcure/scihub_state/master/state.txt"
 try:
     r = requests.get(url_state)
     state_scihub = [i.split(">>")[1] for i in r.iter_lines()]
@@ -66,7 +67,7 @@ def download_from_libgen(bib, s):
         return
 
     download_link = norm_url(html_a[0].attrib["href"])
-    bib["scihub"] = download_link
+    bib["pdf_link"] = download_link
     download_pdf(bib, s)
 
     return
@@ -123,13 +124,13 @@ def download_from_scihub(bib, s):
         return
 
     download_link = norm_url(html_pdf[0].attrib["src"])
-    bib["scihub"] = download_link
+    bib["pdf_link"] = download_link
     download_pdf(bib, s)
     return
 
 
 def download_pdf(bib, s):
-    r = s.get(bib["scihub"], headers=headers)
+    r = s.get(bib["pdf_link"], headers=headers)
     if r.status_code == 200:
         pdf_file = open(bib["pdf_file"], "wb")
         pdf_file.write(r.content)
@@ -147,18 +148,16 @@ def download_pdf_from_bibs(bibs, location="",
     def put_pdf_location(bib):
         pdf_name = bib["ID"] if "ID" in bib else bib["doi"].replace("/", "_")
         pdf_name += ".pdf"
-        pdf_file = location+pdf_name
-
-        bib["pdf_file"] = pdf_file
+        bib["pdf_file"] = location+pdf_name
         return bib
 
     bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
 
     bibs = list(map(put_pdf_location, bibs_with_doi))
 
+    # libgen has no  captcha, try to use multiprocessing?
     with requests.Session() as s:
         if use_libgen:
-            #libgen has no  captcha, try to use multiprocessing?
             list(map(lambda bib: download_from_libgen(bib, s), bibs))
         else:
             for bib in bibs:
@@ -167,9 +166,8 @@ def download_pdf_from_bibs(bibs, location="",
 
 def download_from_doi(doi, location="", use_libgen=False):
     bib = {"doi": doi}
-    pdf_name = "sci2pdf-{}.pdf".format(doi.replace("/", "_"))
-    pdf_file = location+pdf_name
-    bib["pdf_file"] = pdf_file
+    pdf_name = "{}.pdf".format(doi.replace("/", "_"))
+    bib["pdf_file"] = location+pdf_name
 
     with requests.Session() as s:
         if use_libgen:
@@ -184,11 +182,10 @@ def download_from_title(title, location="", use_libgen=False):
     if found:
         bib = bibtexparser.loads(bib_string).entries[0]
         if "doi" in bib:
-            pdf_name = "sci2pdf-{}.pdf".format(
+            pdf_name = "{}.pdf".format(
                 bib["doi"].replace("/", "_")
             )
-            pdf_file = location+pdf_name
-            bib["pdf_file"] = pdf_file
+            bib["pdf_file"] = location+pdf_name
             with requests.Session() as s:
                 if use_libgen:
                     download_from_libgen(bib, s)
@@ -196,3 +193,19 @@ def download_from_title(title, location="", use_libgen=False):
                     download_from_scihub(bib, s)
         else:
             print("Absent DOI")
+
+
+def download_from_arxiv(value, field="id", location=""):
+    value = value.replace("arxiv:", "")
+    found, pdf_link = get_arxiv_pdf_link(value, field)
+    if found and pdf_link is not None:
+        bib = {}
+        pdf_name = "{}.pdf".format(value.replace("/", "_"))
+        bib["pdf_file"] = location+pdf_name
+
+        bib["pdf_link"] = pdf_link
+        s = requests.Session()
+        download_pdf(bib, s)
+    else:
+        print("Arxiv not found.")
+
