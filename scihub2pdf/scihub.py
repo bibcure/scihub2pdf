@@ -215,7 +215,6 @@ def download_from_title(title, location="", use_libgen=False):
 
 def download_from_arxiv(value, field="id", location=""):
     print("Downloading...", value)
-    value = re.sub("arxiv\:", "", value, flags=re.I)
     found, pdf_link = get_arxiv_pdf_link(value, field)
     if found and pdf_link is not None:
         bib = {}
