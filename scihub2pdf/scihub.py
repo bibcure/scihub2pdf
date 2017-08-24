@@ -214,8 +214,8 @@ def download_from_title(title, location="", use_libgen=False):
 
 
 def download_from_arxiv(value, field="id", location=""):
-
-    value = re.sub("arxiv\:", "", value)
+    print("Downloading...", value)
+    value = re.sub("arxiv\:", "", value, flags=re.I)
     found, pdf_link = get_arxiv_pdf_link(value, field)
     if found and pdf_link is not None:
         bib = {}
@@ -226,5 +226,4 @@ def download_from_arxiv(value, field="id", location=""):
         s = requests.Session()
         download_pdf(bib, s)
     else:
-        print("Arxiv not found.")
-
+        print(value, ": Arxiv not found.")

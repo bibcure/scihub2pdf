@@ -61,16 +61,39 @@ $ scihub2pdf -i input.bib --uselibgen
 - No CAPTCHA
 - Slow
 
-## Using bibcure modules
+## Download from list of items
 
 Given a text file like
+
 ```
+10.1038/s41524-017-0032-0
 10.1063/1.3149495
-10.7717/peerj.3714
 .....
 ```
 download all pdf's
 ```
-$ doi2bib -i input_dois.txt > refs.bib
-$ scihub2pdf -i refs.bib
+$ scihub2pdf -i dois.txt --txt
+```
+Given a text file like
+
+```
+Some Title 1 
+Some Title 2 
+.....
+```
+download all pdf's
+```
+$ scihub2pdf -i titles.txt --txt --title
+```
+Given a text file like
+
+```
+arXiv:1708.06891
+arXiv:1708.06071
+arXiv:1708.05948
+.....
+```
+download all pdf's
+```
+$ scihub2pdf -i arxiv_ids.txt --txt 
 ```
