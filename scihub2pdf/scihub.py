@@ -7,6 +7,7 @@ import bibtexparser
 from builtins import input
 from PIL import Image
 from . import __version__
+import re
 try:
     from StringIO import StringIO
 except ImportError:
@@ -151,16 +152,33 @@ def download_pdf_from_bibs(bibs, location="",
         bib["pdf_file"] = location+pdf_name
         return bib
 
-    bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
+    # bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
+    bibs_with_doi = []
+    # bibs_arxiv = []
+    for bib in bibs:
+        if "journal" in bib:
+            if bool(re.match("arxiv:", bib["journal"], re.I)):
+                download_from_arxiv(bib["journal"], "id", location)
+            elif "doi" in bib:
+                bibs_with_doi.append(bib)
 
-    bibs = list(map(put_pdf_location, bibs_with_doi))
+        elif "doi" in bib:
+            bibs_with_doi.append(bib)
+    # bibs_journal = list(filter(lambda bib: "journal" in bib, bibs))
+    # bibs_arxiv = list(
+        # filter(
+            # lambda bib: bool(re.match("arxiv:", bib["journal"], re.I)) in bib, bibs_journal
+        # )
+    # )
+
+    bibs_with_doi = list(map(put_pdf_location, bibs_with_doi))
 
     # libgen has no  captcha, try to use multiprocessing?
     with requests.Session() as s:
         if use_libgen:
-            list(map(lambda bib: download_from_libgen(bib, s), bibs))
+            list(map(lambda bib: download_from_libgen(bib, s), bibs_with_doi))
         else:
-            for bib in bibs:
+            for bib in bibs_with_doi:
                 download_from_scihub(bib, s)
 
 
@@ -196,7 +214,8 @@ def download_from_title(title, location="", use_libgen=False):
 
 
 def download_from_arxiv(value, field="id", location=""):
-    value = value.replace("arxiv:", "")
+
+    value = re.sub("arxiv\:", "", value)
     found, pdf_link = get_arxiv_pdf_link(value, field)
     if found and pdf_link is not None:
         bib = {}
