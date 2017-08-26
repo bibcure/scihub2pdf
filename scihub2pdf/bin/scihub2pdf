@@ -1,4 +1,6 @@
 #!/usr/bib/env python
+from __future__ import unicode_literals
+
 from __future__ import print_function
 import sys
 import bibtexparser
@@ -152,7 +154,21 @@ def main():
                         download_from_doi(value, location, use_libgen)
 
         else:
-            bibtex = bibtexparser.loads(args[0].inputfile.read())
+            dict_parser = {
+                'keywords': 'keyword',
+                'keyw': 'keyword',
+                'subjects': 'subject',
+                'urls': 'url',
+                'link': 'url',
+                'links': 'url',
+                'editors': 'editor',
+                'authors': 'author'}
+            parser = bibtexparser.bparser.BibTexParser()
+            parser.alt_dict = dict_parser
+            bibtex = bibtexparser.loads(args[0].inputfile.read(), parser=parser)
+
+            #bibtex = bibtexparser.loads(args[0].inputfile.read())
+
             bibs = bibtex.entries
             if len(bibs) == 0:
                 print("Input File is empty or corrupted.")
