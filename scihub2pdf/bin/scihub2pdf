@@ -8,8 +8,9 @@ import argparse
 import textwrap
 # from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
 # from sci2pdf.libgen import download_from_title
-from scihub2pdf.download import download_pdf_from_bibs, download_from_doi
-from scihub2pdf.download import download_from_title, download_from_arxiv
+from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
+                                 download_from_title, download_from_arxiv,
+                                 start_scihub)
 import re
 
 
@@ -100,7 +101,7 @@ def main():
         "--uselibgen",
         dest="uselibgen",
         action="store_true",
-        help="Use libgen.io instead sci-hub. Sci-hub has annoying captcha but is stable. Libgen has no captcha but is unstable."
+        help="Use libgen.io instead sci-hub."
                         )
     parser.add_argument(
         "--location", "-l",
@@ -127,6 +128,7 @@ def main():
     if use_libgen:
         print("\n\t Using Libgen.\n")
     else:
+        start_scihub()
         print("\n\t Using Sci-Hub.\n")
 
     if inline_search:

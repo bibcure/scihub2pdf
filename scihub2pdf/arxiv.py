@@ -6,7 +6,6 @@ from tools import download_pdf
 
 
 class Arxiv(object):
-
     def __init__(self, headers={}):
         self.s = requests.Session()
         self.headers = headers

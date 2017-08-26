@@ -44,9 +44,13 @@ xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
 # s = None
 
 
-# ScrapSci = SciHub(headers)
+ScrapSci = SciHub(headers)
 ScrapLib = LibGen(headers)
 ScrapArx = Arxiv(headers)
+
+
+def start_scihub():
+    ScrapSci.start()
 
 
 def download_from_libgen(doi, pdf_file):
@@ -163,5 +167,3 @@ def download_from_title(title, location="", use_libgen=False):
                 found, bib = download_from_scihub(bib["doi"], bib["pdf_file"])
         else:
             print("Absent DOI")
-
-

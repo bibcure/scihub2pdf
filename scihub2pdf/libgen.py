@@ -16,7 +16,6 @@ class LibGen(object):
         self.libgen_url = libgen_url
         self.xpath_pdf_url = xpath_pdf_url
         self.headers = headers
-
         self.doi = None
         self.pdf_file = None
         self.pdf_url = None

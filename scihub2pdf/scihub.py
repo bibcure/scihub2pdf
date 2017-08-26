@@ -22,9 +22,8 @@ xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
 
 
 class SciHub(object):
-
     def __init__(self, headers):
-        self.driver = webdriver.PhantomJS()
+        self.driver = None
         self.sci_url = None
         self.el_captcha = None
         self.el_iframe = None
@@ -33,8 +32,12 @@ class SciHub(object):
         self.pdf_url = None
         self.doi = None
         self.pdf_file = None
-        self.s = requests.Session()
+        self.s = None
         self.headers = headers
+
+    def start(self):
+        self.driver = webdriver.PhantomJS()
+        self.s = requests.Session()
 
     def get_session(self):
         cookies = self.driver.get_cookies()
@@ -42,7 +45,6 @@ class SciHub(object):
             self.s.cookies.set(cookie['name'], cookie['value'])
 
         return self.s
-
 
     def download(self):
         found, r = download_pdf(
@@ -127,6 +129,3 @@ class SciHub(object):
         self.driver.switch_to.default_content()
 
         return self.has_captcha
-
-
-
