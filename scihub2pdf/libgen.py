@@ -3,13 +3,7 @@ from __future__ import print_function
 import requests
 from lxml import html
 from lxml.etree import ParserError
-
-
-def norm_url(url):
-    if url.startswith("//"):
-        url = "http:" + url
-
-    return url
+from tools import norm_url, download_pdf
 
 
 class LibGen(object):
@@ -30,24 +24,14 @@ class LibGen(object):
         self.html_tree = None
         self.html_content = None
 
-    def download_pdf(self):
-        r = self.s.get(
+    def download(self):
+        found, r = download_pdf(
+            self.s,
+            self.pdf_file,
             self.pdf_url,
-            headers=self.headers
-        )
-        print("r_pdf_url ", r.url)
-        print(r.headers['content-type'])
-        found = r.status_code == 200
-        is_right_filetype = r.headers["content-type"] == "application/octet-stream"
-        if found and is_right_filetype:
-            pdf_file = open(self.pdf_file, "wb")
-            pdf_file.write(r.content)
-            pdf_file.close()
-            print("Download ok")
-        else:
-            print("Fail in download ",
-                  " status_code ",
-                  r.status_code)
+            self.headers,
+            filetype="application/octet-stream")
+
         return found,  r
 
     def navigate_to(self, doi, pdf_file):

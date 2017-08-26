@@ -63,7 +63,7 @@ def download_from_libgen(doi, pdf_file):
     if not found:
         return False, r
 
-    found, r = ScrapLib.download_pdf()
+    found, r = ScrapLib.download()
 
     return found, r
 
@@ -76,7 +76,7 @@ def download_from_arxiv(value, location, field="id"):
 
     found, pdf_url = ScrapArx.navigate_to(value, pdf_file, field)
     if found:
-        found, r = ScrapArx.download_pdf()
+        found, r = ScrapArx.download()
 
     return found, pdf_url
 
@@ -96,7 +96,7 @@ def download_from_scihub(doi, pdf_file):
         ScrapSci.show_captcha()
         has_captcha = ScrapSci.get_captcha()
 
-    found, r = ScrapSci.download_pdf()
+    found, r = ScrapSci.download()
 
     return found, r
 

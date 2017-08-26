@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import requests
 from arxivcheck.arxiv import get_arxiv_pdf_link
+from tools import download_pdf
 
 
 class Arxiv(object):
@@ -12,25 +13,13 @@ class Arxiv(object):
         self.pdf_file = None
         self.pdf_url = None
 
-    def download_pdf(self):
-        r = self.s.get(
+    def download(self):
+        found, r = download_pdf(
+            self.s,
+            self.pdf_file,
             self.pdf_url,
-            headers=self.headers
-        )
-        print("r_pdf_url ", r.url)
-        print(r.headers['content-type'])
-        found = r.status_code == 200
-        is_pdf = r.headers["content-type"] == "application/pdf"
-        if found and is_pdf:
-            pdf_file = open(self.pdf_file, "wb")
-            pdf_file.write(r.content)
-            pdf_file.close()
-            print("Download   ok")
-        else:
-            print("Fail in download ",
-                  self.pdf_url,
-                  " status_code ",
-                  r.status_code)
+            self.headers)
+
         return found,  r
 
     def navigate_to(self, value, pdf_file, field="id"):

@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from builtins import input
 from PIL import Image
+from tools import norm_url, download_pdf
 try:
     from StringIO import StringIO
     from io import BytesIO
@@ -19,11 +20,7 @@ xpath_scihub_pdf = "//*[@id='pdf']"
 xpath_scihub_input = "/html/body/div/table/tbody/tr/td/form/input"
 xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
 
-def norm_url(url):
-    if url.startswith("//"):
-        url = "http:" + url
 
-    return url
 class SciHub(object):
 
     def __init__(self, headers):
@@ -46,26 +43,18 @@ class SciHub(object):
 
         return self.s
 
-    def download_pdf(self):
-        r = self.get_session().get(
+
+    def download(self):
+        found, r = download_pdf(
+            self.s,
+            self.pdf_file,
             self.pdf_url,
-            headers=self.headers
-        )
-        print("r_pdf_link ", r.url)
-        print(r.headers['content-type'])
-        found = r.status_code == 200
-        is_pdf = r.headers["content-type"] == "application/pdf"
-        if found and is_pdf:
-            pdf_file = open(self.pdf_file, "wb")
-            pdf_file.write(r.content)
-            pdf_file.close()
-            print("Download of ", self.doi, " ok")
-        else:
-            print("Fail in download ",
-                  self.doi,
-                  " status_code ",
-                  r.status_code)
+            self.headers,
+            filetype="application/octet-stream")
+
+        if not found:
             self.driver.save_screenshot(self.pdf_file+".png")
+
         return found,  r
 
     def navigate_to(self, doi, pdf_file):
