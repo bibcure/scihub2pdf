@@ -16,6 +16,7 @@ setup(
                       "future",
                       "Pillow",
                       "requests",
+                      "selenium",
                       "lxml"],
     include_package_data=True,
     license="GPLv3",
