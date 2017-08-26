@@ -74,9 +74,9 @@ class SciHub(object):
         return found, r
 
     def get_captcha_img(self):
-
+        self.driver.execute_script("document.getElementById('content').style.zIndex = 9999;")
         self.driver.switch_to.frame(self.el_iframe)
-
+        self.driver.execute_script("document.getElementById('captcha').style.zIndex = 9999;")
         location = self.el_captcha.location
         size = self.el_captcha.size
         captcha_screenshot = self.driver.get_screenshot_as_base64()
