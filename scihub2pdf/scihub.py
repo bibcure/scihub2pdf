@@ -1,191 +1,143 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import requests
-from lxml import html
-import bibtexparser
-# from . import __version__
-# from lxml.etree import ParserError
-import re
-from title2bib.crossref import get_bib_from_title
-from arxivcheck.arxiv import get_arxiv_pdf_link
-from phantom_scihub import norm_url, PhantomSciHub
-import pdb
-headers = {
-"Connection": "keep-alive",
-    "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
-}
-# print("\n\t Checking state of scihub...")
-# url_state = "https://raw.githubusercontent.com/bibcure/scihub_state/master/state.txt"
-# try:
-# r = requests.get(url_state, headers=headers)
-# state_scihub = [i.split(">>")[1] for i in r.iter_lines()]
-# url_captcha_scihub = state_scihub[0]
-# url_libgen = state_scihub[1]
-# url_scihub = state_scihub[2]
-# xpath_libgen_a = state_scihub[3]
-# xpath_scihub_captcha = state_scihub[4]
-# xpath_scihub_iframe = state_scihub[5]
-# xpath_scihub_pdf = state_scihub[6]
-# has_update = state_scihub[7] != __version__
-# if has_update:
-# print("\n\t\tWill be better if you upgrade scihub2pdf.")
-# print("\t\tFor that, just do:\n")
-# print("\t\t\t sudo pip install scihub2pdf --upgrade\n")
-# except:
-url_libgen = "http://libgen.io/scimag/ads.php"
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from builtins import input
+from PIL import Image
+try:
+    from StringIO import StringIO
+    from io import BytesIO
+except ImportError:
+    from io import StringIO, BytesIO
+
 
 url_captcha_scihub = "http://moscow.sci-hub.cc"
 url_scihub = "http://sci-hub.cc/"
-xpath_libgen_a = "/html/body/table/tr/td[3]/a"
 xpath_scihub_captcha = "//*[@id='captcha']"
 xpath_scihub_pdf = "//*[@id='pdf']"
 xpath_scihub_input = "/html/body/div/table/tbody/tr/td/form/input"
 xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
 
-# s = None
+def norm_url(url):
+    if url.startswith("//"):
+        url = "http:" + url
 
+    return url
+class SciHub(object):
 
-def download_from_libgen(bib, s):
-    params = {"doi": bib["doi"], "downloadname": ""}
-    r = s.get(url_libgen, params=params, headers=headers)
-    print("libgen link", r.url)
+    def __init__(self, headers):
+        self.driver = webdriver.PhantomJS()
+        self.sci_url = None
+        self.el_captcha = None
+        self.el_iframe = None
+        self.has_captcha = False
+        self.has_iframe = False
+        self.pdf_url = None
+        self.doi = None
+        self.pdf_file = None
+        self.s = requests.Session()
+        self.headers = headers
 
-    if r.status_code != 200:
-        print("Fail libgen url", r.status_code)
-        print("Maybe libgen is down. Try to use sci-hub instead.")
-        return
+    def get_session(self):
+        cookies = self.driver.get_cookies()
+        for cookie in cookies:
+            self.s.cookies.set(cookie['name'], cookie['value'])
 
-    html_tree = html.fromstring(r.content)
-    html_a = html_tree.xpath(xpath_libgen_a)
-    if len(html_a) == 0:
-        print("Copy and paste the below link into your browser")
-        print("\n\t", r.url, "\n")
-        return
+        return self.s
 
-    download_link = norm_url(html_a[0].attrib["href"])
-    bib["pdf_link"] = download_link
-    s = download_pdf(bib)
-
-    return s
-
-
-Scrapper = PhantomSciHub()
-
-
-def download_from_scihub(bib):
-    found, r = Scrapper.navigate_to(bib["doi"], bib["pdf_file"])
-    if not found:
-        print("something goes wrong..")
-        print("\nurl")
-        return False, r
-
-    has_iframe = Scrapper.get_iframe()
-    if not has_iframe:
-        return False, r
-    has_captcha = Scrapper.get_captcha()
-    while has_captcha:
-        Scrapper.show_captcha()
-        has_captcha = Scrapper.get_captcha()
-
-    found, r = Scrapper.download_pdf()
-
-    return found, r
-
-
-def download_pdf(bib, s):
-    # global s
-    r = s.get(bib["pdf_link"], headers=headers)
-    print("r_pdf_link ", r.url)
-    if r.status_code == 200:
-        pdf_file = open(bib["pdf_file"], "wb")
-        pdf_file.write(r.content)
-        pdf_file.close()
-        print("Download of", bib["pdf_file"], " ok")
-    else:
-        print("Fail in download ",
-              bib["pdf_file"],
-              " status_code ",
-              r.status_code)
-
-    return r, bib, s
-
-
-def download_pdf_from_bibs(bibs, location="",
-                           use_libgen=False):
-    def put_pdf_location(bib):
-        pdf_name = bib["ID"] if "ID" in bib else bib["doi"].replace("/", "_")
-        pdf_name += ".pdf"
-        bib["pdf_file"] = location+pdf_name
-        return bib
-
-    # bibs_with_doi = list(filter(lambda bib: "doi" in bib, bibs))
-    bibs_with_doi = []
-    # bibs_arxiv = []
-    for bib in bibs:
-        if "journal" in bib:
-            if bool(re.match("arxiv:", bib["journal"], re.I)):
-                print("arxiv")
-                download_from_arxiv(bib["journal"], "id", location)
-            elif "doi" in bib:
-                bibs_with_doi.append(bib)
-
-        elif "doi" in bib:
-            bibs_with_doi.append(bib)
-            # bibs_journal = list(filter(lambda bib: "journal" in bib, bibs))
-            # bibs_arxiv = list(
-            # filter(
-            # lambda bib: bool(re.match("arxiv:", bib["journal"], re.I)) in bib, bibs_journal
-            # )
-            # )
-
-    bibs_with_doi = list(map(put_pdf_location, bibs_with_doi))
-    # libgen has no  captcha, try to use multiprocessing?
-    if use_libgen:
-        with requests.Session() as s:
-            list(map(lambda bib: download_from_libgen(bib, s), bibs_with_doi))
-    else:
-        for bib in bibs_with_doi:
-            found, bib = download_from_scihub(bib)
-
-
-def download_from_doi(doi, location="", use_libgen=False):
-    bib = {"doi": doi}
-    pdf_name = "{}.pdf".format(doi.replace("/", "_"))
-    bib["pdf_file"] = location+pdf_name
-    s = requests.Session()
-    if use_libgen:
-        download_from_libgen(bib, s)
-    else:
-        download_from_scihub(bib)
-
-
-def download_from_title(title, location="", use_libgen=False):
-    found, bib_string = get_bib_from_title(title)
-    s = requests.Session()
-    if found:
-        bib = bibtexparser.loads(bib_string).entries[0]
-        if "doi" in bib:
-            pdf_name = "{}.pdf".format(
-                bib["doi"].replace("/", "_")
-            )
-            bib["pdf_file"] = location+pdf_name
-            if use_libgen:
-                download_from_libgen(bib, s)
-            else:
-                found, bib = download_from_scihub(bib)
+    def download_pdf(self):
+        r = self.get_session().get(
+            self.pdf_url,
+            headers=self.headers
+        )
+        print("r_pdf_link ", r.url)
+        print(r.headers['content-type'])
+        found = r.status_code == 200
+        is_pdf = r.headers["content-type"] == "application/pdf"
+        if found and is_pdf:
+            pdf_file = open(self.pdf_file, "wb")
+            pdf_file.write(r.content)
+            pdf_file.close()
+            print("Download of ", self.doi, " ok")
         else:
-            print("Absent DOI")
+            print("Fail in download ",
+                  self.doi,
+                  " status_code ",
+                  r.status_code)
+            self.driver.save_screenshot(self.pdf_file+".png")
+        return found,  r
+
+    def navigate_to(self, doi, pdf_file):
+        self.doi = doi
+        self.pdf_file = pdf_file
+        self.sci_url = url_scihub+doi
+        print("Sci-Hub LINK ->" + self.sci_url)
+        r = requests.get(self.sci_url)
+        found = r.status_code == 200
+        if found:
+            self.driver.get(self.sci_url)
+            self.driver.set_window_size(1120, 550)
+        return found, r
+
+    def show_captcha(self):
+        from base64 import b64decode as b64d
+        self.driver.switch_to.frame(self.el_iframe)
+        location = self.el_captcha.location
+        size = self.el_captcha.size
+        captcha_screenshot = self.driver.get_screenshot_as_base64()
+        image = Image.open(StringIO(b64d(captcha_screenshot)))
+        # self.driver.save_screenshot("~/teste/captcha.png")
+        left = location['x']
+        top = location['y']
+        right = location['x'] + size['width']
+        bottom = location['y'] + size['height']
+        image = image.crop((left, top, right, bottom))
+        image.show()
+        # image.save("~/teste/captcha.png", 'png')
+
+        captcha_text = input("put captcha:")
+        self.input_box.send_keys(captcha_text)
+        self.submit_box.click()
+
+        self.driver.save_screenshot('after.png')
+        self.driver.switch_to.default_content()
+
+    def get_iframe(self):
+        self.has_iframe, self.el_iframe = self.get_el(xpath_scihub_pdf)
+        if self.has_iframe:
+            self.pdf_url = norm_url(self.el_iframe.get_attribute("src"))
+        else:
+            self.driver.save_screenshot(self.pdf_file+".png")
+            print ('No iframe')
+
+        return self.has_iframe
+
+    def get_el(self, xpath):
+        try:
+            el = self.driver.find_element_by_xpath(
+                xpath
+            )
+            found = True
+        except NoSuchElementException:
+            el = None
+            found = False
+
+        return found, el
+
+    def get_captcha(self):
+
+        self.driver.switch_to.frame(self.el_iframe)
+        self.has_captcha, self.el_captcha = self.get_el(xpath_scihub_captcha)
+        if self.has_captcha:
+            found, self.input_box = self.get_el(xpath_scihub_input)
+            found, self.submit_box = self.get_el(xpath_scihub_submit)
+        else:
+            print ('No captcha')
+
+        self.driver.switch_to.default_content()
+
+        return self.has_captcha
 
 
-def download_from_arxiv(value, field="id", location=""):
-    print("Downloading...", value)
-    found, pdf_link = get_arxiv_pdf_link(value, field)
-    if found and pdf_link is not None:
-        bib = {}
-        pdf_name = "{}.pdf".format(value.replace("/", "_"))
-        bib["pdf_file"] = location+pdf_name
-        s = requests.Session()
-        bib["pdf_link"] = pdf_link
-        download_pdf(bib, s)
-    else:
-        print(value, ": Arxiv not found.")
+
