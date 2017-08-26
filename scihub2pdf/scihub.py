@@ -3,9 +3,10 @@ from __future__ import print_function
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from builtins import input
 from PIL import Image
 from tools import norm_url, download_pdf
+from base64 import b64decode as b64d
+import time
 try:
     from StringIO import StringIO
     from io import BytesIO
@@ -19,6 +20,7 @@ xpath_scihub_captcha = "//*[@id='captcha']"
 xpath_scihub_pdf = "//*[@id='pdf']"
 xpath_scihub_input = "/html/body/div/table/tbody/tr/td/form/input"
 xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
+
 
 
 class SciHub(object):
@@ -46,13 +48,13 @@ class SciHub(object):
 
         return self.s
 
+
     def download(self):
         found, r = download_pdf(
             self.s,
             self.pdf_file,
             self.pdf_url,
-            self.headers,
-            filetype="application/octet-stream")
+            self.headers)
 
         if not found:
             self.driver.save_screenshot(self.pdf_file+".png")
@@ -71,28 +73,33 @@ class SciHub(object):
             self.driver.set_window_size(1120, 550)
         return found, r
 
-    def show_captcha(self):
-        from base64 import b64decode as b64d
+    def get_captcha_img(self):
+
         self.driver.switch_to.frame(self.el_iframe)
+
         location = self.el_captcha.location
         size = self.el_captcha.size
         captcha_screenshot = self.driver.get_screenshot_as_base64()
         image = Image.open(StringIO(b64d(captcha_screenshot)))
-        # self.driver.save_screenshot("~/teste/captcha.png")
         left = location['x']
         top = location['y']
         right = location['x'] + size['width']
         bottom = location['y'] + size['height']
         image = image.crop((left, top, right, bottom))
-        image.show()
-        # image.save("~/teste/captcha.png", 'png')
-
-        captcha_text = input("put captcha:")
-        self.input_box.send_keys(captcha_text)
-        self.submit_box.click()
-
-        self.driver.save_screenshot('after.png')
         self.driver.switch_to.default_content()
+        return image
+
+
+    def solve_captcha(self, captcha_text):
+        self.driver.switch_to.frame(self.el_iframe)
+        self.input_box.send_keys(captcha_text)
+
+        self.submit_box.click()
+        # with self.wait_for_load():
+        time.sleep(5)
+
+        self.driver.switch_to.default_content()
+        return self.check_captcha()
 
     def get_iframe(self):
         self.has_iframe, self.el_iframe = self.get_el(xpath_scihub_pdf)
@@ -100,7 +107,6 @@ class SciHub(object):
             self.pdf_url = norm_url(self.el_iframe.get_attribute("src"))
         else:
             self.driver.save_screenshot(self.pdf_file+".png")
-            print ('No iframe')
 
         return self.has_iframe
 
@@ -116,16 +122,17 @@ class SciHub(object):
 
         return found, el
 
-    def get_captcha(self):
+    def check_captcha(self):
+        has_iframe = self.get_iframe()
+        if has_iframe is False:
+            return False, has_iframe
 
         self.driver.switch_to.frame(self.el_iframe)
         self.has_captcha, self.el_captcha = self.get_el(xpath_scihub_captcha)
         if self.has_captcha:
             found, self.input_box = self.get_el(xpath_scihub_input)
             found, self.submit_box = self.get_el(xpath_scihub_submit)
-        else:
-            print ('No captcha')
 
         self.driver.switch_to.default_content()
 
-        return self.has_captcha
+        return self.has_captcha, has_iframe

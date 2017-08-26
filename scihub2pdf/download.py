@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
+from builtins import input
 import bibtexparser
 # from . import __version__
 # from lxml.etree import ParserError
@@ -10,8 +11,8 @@ from libgen import LibGen
 from arxiv import Arxiv
 import pdb
 headers = {
-    "Connection": "keep-alive",
-    "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+    # "Connection": "keep-alive",
+    # "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
 }
 # print("\n\t Checking state of scihub...")
 # url_state = "https://raw.githubusercontent.com/bibcure/scihub_state/master/state.txt"
@@ -92,18 +93,18 @@ def download_from_scihub(doi, pdf_file):
         print("\nurl")
         return False, r
 
-    has_iframe = ScrapSci.get_iframe()
-    if not has_iframe:
-        return False, r
-    has_captcha = ScrapSci.get_captcha()
-    while has_captcha:
-        ScrapSci.show_captcha()
-        has_captcha = ScrapSci.get_captcha()
+    has_captcha, has_iframe = ScrapSci.check_captcha()
+    while (has_captcha and has_iframe):
+        captcha_img = ScrapSci.get_captcha_img()
+        captcha_img.show()
+        captcha_text = input("put captcha:\n")
+        has_captcha, has_iframe = ScrapSci.solve_captcha(captcha_text)
 
-    found, r = ScrapSci.download()
+    if has_iframe:
+        found, r = ScrapSci.download()
 
-    return found, r
-
+    found = has_iframe
+    return has_iframe, r
 
 
 def download_pdf_from_bibs(bibs, location="",
@@ -137,7 +138,10 @@ def download_pdf_from_bibs(bibs, location="",
     bibs_with_doi = list(map(put_pdf_location, bibs_with_doi))
     # libgen has no  captcha, try to use multiprocessing?
     if use_libgen:
-        list(map(lambda bib: download_from_libgen(bib["doi"], bib["pdf_file"]), bibs_with_doi))
+        list(map(
+            lambda bib: download_from_libgen(bib["doi"], bib["pdf_file"]
+                                             ),
+            bibs_with_doi))
     else:
         for bib in bibs_with_doi:
             found, bib = download_from_scihub(bib["doi"], bib["pdf_file"])

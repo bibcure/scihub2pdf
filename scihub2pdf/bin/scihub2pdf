@@ -1,13 +1,10 @@
 #!/usr/bib/env python
 from __future__ import unicode_literals
-
 from __future__ import print_function
 import sys
 import bibtexparser
 import argparse
 import textwrap
-# from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
-# from sci2pdf.libgen import download_from_title
 from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
                                  download_from_title, download_from_arxiv,
                                  start_scihub)
@@ -167,9 +164,8 @@ def main():
                 'authors': 'author'}
             parser = bibtexparser.bparser.BibTexParser()
             parser.alt_dict = dict_parser
-            bibtex = bibtexparser.loads(args[0].inputfile.read(), parser=parser)
-
-            #bibtex = bibtexparser.loads(args[0].inputfile.read())
+            bibtex = bibtexparser.loads(args[0].inputfile.read(),
+                                        parser=parser)
 
             bibs = bibtex.entries
             if len(bibs) == 0:
