@@ -43,8 +43,8 @@ class LibGen(object):
         )
         self.page_url = r.url
         self.pdf_file = pdf_file
-        print("\nLibGen DOI: ", doi)
-        print("\tLINK: ", self.page_url)
+        print("\n\tDOI: ", doi)
+        print("\tLibGen Link: ", self.page_url)
         found = r.status_code == 200
         if not found:
             print("\tMaybe libgen is down. Try to use sci-hub instead.")
@@ -59,8 +59,8 @@ class LibGen(object):
             self.html_tree = html.fromstring(self.html_content)
             success = True
         except ParserError:
-            print("\tThe LibGen page has a strange bewavior\n")
-            print("\tTry open in browser to check\n")
+            print("\tThe LibGen page has a strange bewavior")
+            print("\tTry open in browser to check")
             print(self.page_url)
             success = False
 

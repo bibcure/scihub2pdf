@@ -1,5 +1,4 @@
 #!/usr/bib/env python
-# encoding: utf-8
 from __future__ import unicode_literals, print_function, absolute_import
 import sys
 import bibtexparser
@@ -10,10 +9,8 @@ from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
                                  download_from_title, download_from_arxiv,
                                  start_scihub)
 import re
-import sys
 
 pyversion = sys.version_info[0]
-
 
 
 def main():
@@ -173,7 +170,8 @@ def main():
                 'authors': 'author'}
             parser = bibtexparser.bparser.BibTexParser()
             parser.alt_dict = dict_parser
-            bibtex = bibtexparser.loads(args[0].inputfile.read(),
+            refs_string = args[0].inputfile.read()
+            bibtex = bibtexparser.loads(refs_string,
                                         parser=parser)
 
             bibs = bibtex.entries
