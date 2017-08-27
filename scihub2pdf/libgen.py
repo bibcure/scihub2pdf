@@ -42,7 +42,7 @@ class LibGen(object):
             headers=self.headers
         )
         self.page_url = r.url
-
+        self.pdf_file = pdf_file
         print("\nLibGen DOI: ", doi)
         print("\tLINK: ", self.page_url)
         found = r.status_code == 200
