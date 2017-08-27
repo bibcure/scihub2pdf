@@ -8,7 +8,7 @@ import textwrap
 from unidecode import unidecode
 from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
                                  download_from_title, download_from_arxiv,
-                                 start_scihub)
+                                 start_scihub, start_libgen, start_arxiv)
 import re
 import io
 
@@ -125,10 +125,13 @@ def main():
     location = args[0].location
 
     if use_libgen:
+        start_libgen()
         print("\n\t Using Libgen.\n")
     else:
         start_scihub()
         print("\n\t Using Sci-Hub.\n")
+
+    start_arxiv()
 
     if inline_search:
 
@@ -171,7 +174,6 @@ def main():
                 'authors': 'author'}
             parser = bibtexparser.bparser.BibTexParser()
             parser.alt_dict = dict_parser
-
             with io.open(args[0].inputfile, "r", encoding="utf-8") as inputfile:
                     refs_string = args[0].inputfile.read()
 

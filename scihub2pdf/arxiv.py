@@ -6,10 +6,13 @@ from scihub2pdf.tools import download_pdf
 
 class Arxiv(object):
     def __init__(self, headers={}):
-        self.s = requests.Session()
         self.headers = headers
+        self.s = None
         self.pdf_file = None
         self.pdf_url = None
+
+    def start(self):
+        self.s = requests.Session()
 
     def download(self):
         found, r = download_pdf(
@@ -24,7 +27,7 @@ class Arxiv(object):
         self.pdf_file = pdf_file
         found, self.pdf_url = get_arxiv_pdf_link(value, field)
 
-        print("\nArxiv: ", value)
+        print("\n\t"+value)
         print("\tLINK: ", self.pdf_url)
         if not found:
             print("\tArxiv ", value, " not found\n")

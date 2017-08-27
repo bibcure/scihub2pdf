@@ -57,6 +57,12 @@ ScrapLib = LibGen(headers=headers,
 def start_scihub():
     ScrapSci.start()
 
+def start_libgen():
+    ScrapLib.start()
+
+def start_arxiv():
+    ScrapArx.start()
+
 
 def download_from_libgen(doi, pdf_file):
     found, r = ScrapLib.navigate_to(doi, pdf_file)
