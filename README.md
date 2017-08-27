@@ -11,13 +11,13 @@ database of libgen,  Sci-Hub and Arxiv.
 ## Install
 
 ```
-$ sudo pip install scihub2pdf
+$ sudo python /usr/bin/pip install scihub2pdf
 ```
 If you want  to download files from scihub you will need to get  PhantomJS
 
 ### OSX
 ```
-$ brew install phantomjs
+$ npm install -g phantomjs
 ```
 ### Linux Using npm
 
@@ -32,7 +32,7 @@ $ sudo npm install -g phantomjs
 
 Given a bibtex file
 ```
-$ scihub2pdf -i input.bib 
+$ scihub2pdf -i input.bib
 ```
 
 Given a DOI number...
@@ -91,8 +91,8 @@ $ scihub2pdf -i dois.txt --txt
 Given a text file like
 
 ```
-Some Title 1 
-Some Title 2 
+Some Title 1
+Some Title 2
 .....
 ```
 download all pdf's
@@ -109,5 +109,5 @@ arXiv:1708.05948
 ```
 download all pdf's
 ```
-$ scihub2pdf -i arxiv_ids.txt --txt 
+$ scihub2pdf -i arxiv_ids.txt --txt
 ```
