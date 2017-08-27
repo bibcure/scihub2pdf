@@ -9,7 +9,6 @@ from title2bib.crossref import get_bib_from_title
 from scihub2pdf.scihub import SciHub
 from scihub2pdf.libgen import LibGen
 from scihub2pdf.arxiv import Arxiv
-import pdb
 headers = {
     # "Connection": "keep-alive",
     # "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
@@ -32,22 +31,27 @@ headers = {
 # print("\t\tFor that, just do:\n")
 # print("\t\t\t sudo pip install scihub2pdf --upgrade\n")
 # except:
-url_libgen = "http://libgen.io/scimag/ads.php"
-
-url_captcha_scihub = "http://moscow.sci-hub.cc"
-url_scihub = "http://sci-hub.cc/"
-xpath_libgen_a = "/html/body/table/tr/td[3]/a"
-xpath_scihub_captcha = "//*[@id='captcha']"
-xpath_scihub_pdf = "//*[@id='pdf']"
-xpath_scihub_input = "/html/body/div/table/tbody/tr/td/form/input"
-xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
-
 # s = None
 
+libgen_url = "http://libgen.io/scimag/ads.php"
+libgen_xpath_pdf_url = "/html/body/table/tr/td[3]/a"
+xpath_captcha = "//*[@id='captcha']"
+xpath_pdf = "//*[@id='pdf']"
+xpath_input = "/html/body/div/table/tbody/tr/td/form/input"
+xpath_form = "/html/body/div/table/tbody/tr/td/form"
+domain_scihub = "http://sci-hub.cc/"
 
-ScrapSci = SciHub(headers)
-ScrapLib = LibGen(headers)
+ScrapSci = SciHub(headers,
+                  xpath_captcha,
+                  xpath_pdf,
+                  xpath_input,
+                  xpath_form,
+                  domain_scihub
+                  )
 ScrapArx = Arxiv(headers)
+ScrapLib = LibGen(headers=headers,
+                  libgen_url=libgen_url,
+                  xpath_pdf_url=libgen_xpath_pdf_url)
 
 
 def start_scihub():

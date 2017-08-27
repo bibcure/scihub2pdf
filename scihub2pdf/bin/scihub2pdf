@@ -12,7 +12,6 @@ import re
 
 pyversion = sys.version_info[0]
 
-
 def main():
     parser = argparse.ArgumentParser(
         prog="scihub2pdf",

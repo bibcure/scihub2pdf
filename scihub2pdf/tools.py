@@ -13,11 +13,10 @@ def download_pdf(s, pdf_file, pdf_url, headers, filetype="application/pdf"):
         pdf = open(pdf_file, "wb")
         pdf.write(r.content)
         pdf.close()
-        print("\tDownload   ok")
+        print("\tDownload: ok")
     else:
-        print("\tFail in download ",
-              " status_code ",
-              r.status_code)
+        print("\tDownload: Fail")
+        print("\tStatus_code: ", r.status_code)
     return found,  r
 
 
