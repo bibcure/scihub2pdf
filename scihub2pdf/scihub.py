@@ -6,6 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 from PIL import Image
 from scihub2pdf.tools import norm_url, download_pdf
 from base64 import b64decode as b64d
+from six import string_types
 import time
 try:
     from StringIO import StringIO
@@ -79,7 +80,12 @@ class SciHub(object):
         location = self.el_captcha.location
         size = self.el_captcha.size
         captcha_screenshot = self.driver.get_screenshot_as_base64()
-        image = Image.open(StringIO(b64d(captcha_screenshot)))
+        image_b64d = b64d(captcha_screenshot)
+        if isinstance(image_b64d, string_types):
+            image = Image.open(StringIO(image_b64d))
+        else:
+            image = Image.open(BytesIO(image_b64d))
+
         left = location['x']
         top = location['y']
         right = location['x'] + size['width']

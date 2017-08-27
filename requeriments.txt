@@ -6,3 +6,4 @@ title2bib
 Pillow
 arxivcheck
 selenium
+six

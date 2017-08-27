@@ -14,6 +14,7 @@ setup(
                       "title2bib",
                       "arxivcheck",
                       "future",
+                      "six",
                       "Pillow",
                       "requests",
                       "selenium",
