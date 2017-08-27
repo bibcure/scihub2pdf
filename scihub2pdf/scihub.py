@@ -22,7 +22,6 @@ xpath_scihub_input = "/html/body/div/table/tbody/tr/td/form/input"
 xpath_scihub_submit = "/html/body/div/table/tbody/tr/td/form/p[2]/input"
 
 
-
 class SciHub(object):
     def __init__(self, headers):
         self.driver = None
@@ -48,7 +47,6 @@ class SciHub(object):
 
         return self.s
 
-
     def download(self):
         found, r = download_pdf(
             self.s,
@@ -65,7 +63,8 @@ class SciHub(object):
         self.doi = doi
         self.pdf_file = pdf_file
         self.sci_url = url_scihub+doi
-        print("Sci-Hub LINK ->" + self.sci_url)
+        print("\nSci-Hub DOI: ", doi)
+        print("\tLINK: " + self.sci_url)
         r = requests.get(self.sci_url)
         found = r.status_code == 200
         if found:
@@ -88,7 +87,6 @@ class SciHub(object):
         image = image.crop((left, top, right, bottom))
         self.driver.switch_to.default_content()
         return image
-
 
     def solve_captcha(self, captcha_text):
         self.driver.switch_to.frame(self.el_iframe)

@@ -24,7 +24,10 @@ class Arxiv(object):
     def navigate_to(self, value, pdf_file, field="id"):
         self.pdf_file = pdf_file
         found, self.pdf_url = get_arxiv_pdf_link(value, field)
+
+        print("\nArxiv: ", value)
+        print("\tLINK: ", self.pdf_url)
         if not found:
-            print("Arxiv ", value, " not found\n")
+            print("\tArxiv ", value, " not found\n")
             print(self.pdf_url)
         return found, self.pdf_url

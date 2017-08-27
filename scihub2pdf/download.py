@@ -57,7 +57,6 @@ def start_scihub():
 def download_from_libgen(doi, pdf_file):
     found, r = ScrapLib.navigate_to(doi, pdf_file)
     if not found:
-        print("something goes wrong..")
         return False, r
 
     success, tree = ScrapLib.generate_tree()
@@ -89,15 +88,13 @@ def download_from_arxiv(value, location, field="id"):
 def download_from_scihub(doi, pdf_file):
     found, r = ScrapSci.navigate_to(doi, pdf_file)
     if not found:
-        print("something goes wrong..")
-        print("\nurl")
         return False, r
 
     has_captcha, has_iframe = ScrapSci.check_captcha()
     while (has_captcha and has_iframe):
         captcha_img = ScrapSci.get_captcha_img()
         captcha_img.show()
-        captcha_text = input("put captcha:\n")
+        captcha_text = input("\tPut captcha:\n\t")
         has_captcha, has_iframe = ScrapSci.solve_captcha(captcha_text)
 
     if has_iframe:
@@ -170,4 +167,4 @@ def download_from_title(title, location="", use_libgen=False):
             else:
                 found, bib = download_from_scihub(bib["doi"], bib["pdf_file"])
         else:
-            print("Absent DOI")
+            print("\tAbsent DOI")

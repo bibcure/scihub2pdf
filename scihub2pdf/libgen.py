@@ -42,10 +42,12 @@ class LibGen(object):
             headers=self.headers
         )
         self.page_url = r.url
-        print("libgen link", self.page_url)
+
+        print("\nLibGen DOI: ", doi)
+        print("\tLINK: ", self.page_url)
         found = r.status_code == 200
         if not found:
-            print("Maybe libgen is down. Try to use sci-hub instead.")
+            print("\tMaybe libgen is down. Try to use sci-hub instead.")
             return found,  r
 
         self.html_content = r.content
@@ -57,8 +59,8 @@ class LibGen(object):
             self.html_tree = html.fromstring(self.html_content)
             success = True
         except ParserError:
-            print("The LibGen page has a strange bewavior\n")
-            print("Try open in browser to check\n")
+            print("\tThe LibGen page has a strange bewavior\n")
+            print("\tTry open in browser to check\n")
             print(self.page_url)
             success = False
 
@@ -67,7 +69,7 @@ class LibGen(object):
     def get_pdf_url(self):
         html_a = self.html_tree.xpath(self.xpath_pdf_url)
         if len(html_a) == 0:
-            print("PDF link for ", self.page_url, " not found")
+            print("\tPDF link for ", self.page_url, " not found")
             found = False
             self.pdf_url = None
         else:

@@ -13,9 +13,9 @@ def download_pdf(s, pdf_file, pdf_url, headers, filetype="application/pdf"):
         pdf = open(pdf_file, "wb")
         pdf.write(r.content)
         pdf.close()
-        print("Download   ok")
+        print("\tDownload   ok")
     else:
-        print("Fail in download ",
+        print("\tFail in download ",
               " status_code ",
               r.status_code)
     return found,  r
