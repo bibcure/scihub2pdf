@@ -1,4 +1,5 @@
 #!/usr/bib/env python
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 import sys
 import bibtexparser
@@ -9,6 +10,7 @@ from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
                                  download_from_title, download_from_arxiv,
                                  start_scihub)
 import re
+import io
 
 pyversion = sys.version_info[0]
 
@@ -86,7 +88,6 @@ def main():
     parser.add_argument(
         "--input", "-i",
         dest="inputfile",
-        type=argparse.FileType("r"),
         help="bibtex input file"
     )
     parser.add_argument(
@@ -134,7 +135,6 @@ def main():
         #values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
         values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
         value = " ".join(values)
-        print(value)
         is_arxiv = bool(re.match("arxiv:", value, re.I))
         if is_arxiv:
             field = "ti" if title_search else "id"
@@ -145,7 +145,9 @@ def main():
             download_from_doi(value, location, use_libgen)
     else:
         if is_txt:
-            file_values = args[0].inputfile.read()
+            with io.open(args[0].inputfile, "r", encoding = "utf-8") as inputfile:
+                file_values = inputfile.read()
+
             for value in file_values.split("\n"):
                 is_arxiv = bool(re.match("arxiv:", value, re.I))
                 if value != "":
@@ -169,10 +171,12 @@ def main():
                 'authors': 'author'}
             parser = bibtexparser.bparser.BibTexParser()
             parser.alt_dict = dict_parser
-            refs_string = args[0].inputfile.read()
+
+            with io.open(args[0].inputfile, "r", encoding="utf-8") as inputfile:
+                    refs_string = args[0].inputfile.read()
+
             bibtex = bibtexparser.loads(refs_string,
                                         parser=parser)
-
             bibs = bibtex.entries
             if len(bibs) == 0:
                 print("Input File is empty or corrupted.")
