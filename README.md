@@ -13,7 +13,7 @@ database of libgen,  Sci-Hub and Arxiv.
 ```
 $ sudo pip install scihub2pdf
 ```
-Four download archives from scihub you need have npm and PhantomJS
+If you want  to download files from scihub you will need to get  PhantomJS
 
 ### OSX
 ```
