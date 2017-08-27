@@ -1,15 +1,16 @@
 #!/usr/bib/env python
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
 import sys
 import bibtexparser
 import argparse
 import textwrap
-# from sci2pdf.libgen import download_pdf_from_bibs, download_from_doi
-# from sci2pdf.libgen import download_from_title
-from scihub2pdf.scihub import download_pdf_from_bibs, download_from_doi
-from scihub2pdf.scihub import download_from_title, download_from_arxiv
+from unidecode import unidecode
+from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
+                                 download_from_title, download_from_arxiv,
+                                 start_scihub)
 import re
 
+pyversion = sys.version_info[0]
 
 def main():
     parser = argparse.ArgumentParser(
@@ -98,7 +99,7 @@ def main():
         "--uselibgen",
         dest="uselibgen",
         action="store_true",
-        help="Use libgen.io instead sci-hub. Sci-hub has annoying captcha but is stable. Libgen has no captcha but is unstable."
+        help="Use libgen.io instead sci-hub."
                         )
     parser.add_argument(
         "--location", "-l",
@@ -125,14 +126,19 @@ def main():
     if use_libgen:
         print("\n\t Using Libgen.\n")
     else:
+        start_scihub()
         print("\n\t Using Sci-Hub.\n")
 
     if inline_search:
-        value = " ".join(args[1])
+
+        #values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
+        values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
+        value = " ".join(values)
+        print(value)
         is_arxiv = bool(re.match("arxiv:", value, re.I))
         if is_arxiv:
             field = "ti" if title_search else "id"
-            download_from_arxiv(value, field, location)
+            download_from_arxiv(value, location, field)
         elif title_search:
             download_from_title(value, location, use_libgen)
         else:
@@ -152,7 +158,21 @@ def main():
                         download_from_doi(value, location, use_libgen)
 
         else:
-            bibtex = bibtexparser.loads(args[0].inputfile.read())
+            dict_parser = {
+                'keywords': 'keyword',
+                'keyw': 'keyword',
+                'subjects': 'subject',
+                'urls': 'url',
+                'link': 'url',
+                'links': 'url',
+                'editors': 'editor',
+                'authors': 'author'}
+            parser = bibtexparser.bparser.BibTexParser()
+            parser.alt_dict = dict_parser
+            refs_string = args[0].inputfile.read()
+            bibtex = bibtexparser.loads(refs_string,
+                                        parser=parser)
+
             bibs = bibtex.entries
             if len(bibs) == 0:
                 print("Input File is empty or corrupted.")
