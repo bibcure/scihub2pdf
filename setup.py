@@ -20,7 +20,7 @@ setup(
                       "selenium",
                       "lxml"],
     include_package_data=True,
-    license="GPLv3",
+    license="AGPLv3",
     description="Downloads pdfs via a DOI number(or arxivId), article title or a bibtex file, sci-hub",
     author="Bruno Messias",
     author_email="messias.physics@gmail.com",
@@ -28,7 +28,7 @@ setup(
     keywords=["bibtex", "sci-hub", "libgen", "doi",  "science", "scientific-journals"],
 
     classifiers=[
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python",
         "Topic :: Text Processing :: Markup :: LaTeX",
