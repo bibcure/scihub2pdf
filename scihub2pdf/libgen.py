@@ -1,9 +1,9 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
+
 import requests
 from lxml import html
 from lxml.etree import ParserError
-from tools import norm_url, download_pdf
+from scihub2pdf.tools import norm_url, download_pdf
 
 
 class LibGen(object):

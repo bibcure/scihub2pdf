@@ -1,10 +1,10 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
+
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from PIL import Image
-from tools import norm_url, download_pdf
+from scihub2pdf.tools import norm_url, download_pdf
 from base64 import b64decode as b64d
 import time
 try:

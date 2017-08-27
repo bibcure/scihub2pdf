@@ -1,14 +1,14 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
+
 from builtins import input
 import bibtexparser
 # from . import __version__
 # from lxml.etree import ParserError
 import re
 from title2bib.crossref import get_bib_from_title
-from scihub import SciHub
-from libgen import LibGen
-from arxiv import Arxiv
+from scihub2pdf.scihub import SciHub
+from scihub2pdf.libgen import LibGen
+from scihub2pdf.arxiv import Arxiv
 import pdb
 headers = {
     # "Connection": "keep-alive",

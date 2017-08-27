@@ -1,8 +1,8 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
+
 import requests
 from arxivcheck.arxiv import get_arxiv_pdf_link
-from tools import download_pdf
+from scihub2pdf.tools import download_pdf
 
 
 class Arxiv(object):

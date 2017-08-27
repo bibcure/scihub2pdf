@@ -1,14 +1,19 @@
 #!/usr/bib/env python
-from __future__ import unicode_literals
-from __future__ import print_function
+# encoding: utf-8
+from __future__ import unicode_literals, print_function, absolute_import
 import sys
 import bibtexparser
 import argparse
 import textwrap
+from unidecode import unidecode
 from scihub2pdf.download import (download_pdf_from_bibs, download_from_doi,
                                  download_from_title, download_from_arxiv,
                                  start_scihub)
 import re
+import sys
+
+pyversion = sys.version_info[0]
+
 
 
 def main():
@@ -129,7 +134,11 @@ def main():
         print("\n\t Using Sci-Hub.\n")
 
     if inline_search:
-        value = " ".join(args[1])
+
+        #values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
+        values = [c if pyversion == 3 else c.decode(sys.stdout.encoding) for c in args[1]]
+        value = " ".join(values)
+        print(value)
         is_arxiv = bool(re.match("arxiv:", value, re.I))
         if is_arxiv:
             field = "ti" if title_search else "id"
