@@ -12,10 +12,10 @@ class LibGen(object):
                  libgen_url="http://libgen.io/scimag/ads.php",
                  xpath_pdf_url="/html/body/table/tr/td[3]/a"):
 
-        self.s = requests.Session()
         self.libgen_url = libgen_url
         self.xpath_pdf_url = xpath_pdf_url
         self.headers = headers
+        self.s = None
         self.doi = None
         self.pdf_file = None
         self.pdf_url = None
@@ -23,6 +23,8 @@ class LibGen(object):
         self.html_tree = None
         self.html_content = None
 
+    def start(self):
+        self.s =requests.Session()
     def download(self):
         found, r = download_pdf(
             self.s,

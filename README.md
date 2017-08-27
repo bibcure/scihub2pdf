@@ -6,26 +6,26 @@
 scihub2pdf is a module of [bibcure](https://github.com/bibcure/bibcure)
 
 Downloads pdfs via a DOI number, article title or a bibtex file, using the
-database of libgen or Sci-Hub.
+database of libgen,  Sci-Hub and Arxiv.
 
 ## Install
 
 ```
 $ sudo pip install scihub2pdf
 ```
-Four download archives from scihub you need have npm and PhantomJS
+If you want  to download files from scihub you will need to get  PhantomJS
 
 ### OSX
 ```
-brew install phantomjs
+$ brew install phantomjs
 ```
 ### Linux Using npm
 
 ```
-npm install -g phantomjs
+$ sudo apt-get install npm
+$ sudo npm install -g phantomjs
 ```
 
-### Linux(if you don't have npm)
 
 
 ## Features and how to use
