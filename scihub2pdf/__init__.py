@@ -1,4 +1,4 @@
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 __license__ = "AGPLv3"
 __author__ = "Bruno Messias"
 __author_email__ = "messias.physics@gmail.com"

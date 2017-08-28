@@ -175,7 +175,7 @@ def main():
             parser = bibtexparser.bparser.BibTexParser()
             parser.alt_dict = dict_parser
             with io.open(args[0].inputfile, "r", encoding="utf-8") as inputfile:
-                    refs_string = args[0].inputfile.read()
+                    refs_string = inputfile.read()
 
             bibtex = bibtexparser.loads(refs_string,
                                         parser=parser)
