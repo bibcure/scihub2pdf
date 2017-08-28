@@ -1,6 +1,6 @@
 # SciHub to PDF(Beta)
 
-
+![](https://raw.githubusercontent.com/bibcure/logo/master/gifs/scihub.gif) 
 ## Description
 
 scihub2pdf is a module of [bibcure](https://github.com/bibcure/bibcure)
