@@ -6,7 +6,7 @@ readme.close()
 
 setup(
     name="scihub2pdf",
-    version="0.4.1",
+    version="0.4.2",
     packages=find_packages(exclude=["build", ]),
     scripts=["scihub2pdf/bin/scihub2pdf"],
     long_description=README_TEXT,
@@ -24,7 +24,7 @@ setup(
     description="Downloads pdfs via a DOI number(or arxivId), article title or a bibtex file, sci-hub",
     author="Bruno Messias",
     author_email="messias.physics@gmail.com",
-    download_url="https://github.com/bibcure/scihub2pdf/archive/0.4.1.tar.gz",
+    download_url="https://github.com/bibcure/scihub2pdf/archive/0.4.2.tar.gz",
     keywords=["bibtex", "sci-hub", "libgen", "doi",  "science", "scientific-journals"],
 
     classifiers=[
